@@ -1,48 +1,38 @@
 const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
 const axios = require('axios');
-
-// Load environment variables from .env file
 dotenv.config();
-
-// Initialize the Express app
 const app = express();
+const PORT = 3000;
 
-// Define the port for the frontend
-const PORT = process.env.PORT || 3000;
-
-// Serve static files from the 'public' directory
+// Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Parse incoming requests with URL-encoded data and JSON (using Express built-in methods)
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Body parser middleware for parsing JSON and URL encoded form data
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// Root route to serve the index.html file
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// POST route to handle form submissions
+// Handle POST request from frontend (submitting data to Flask)
 app.post('/submit', async (req, res) => {
     try {
-        // Forward the request body to the Flask backend
+        // Send the data to Flask backend at port 5000 (assuming Flask is running at http://localhost:5000)
         const response = await axios.post('http://backend:5000/process', req.body);
-        
         if (response.status === 200) {
-            // Redirect to success page if the backend process is successful
-            res.redirect('/success.html');
+            res.redirect('/success.html');  // Redirect to success page
         } else {
             res.status(response.status).send('Error processing request');
         }
     } catch (error) {
-        // Handle errors during the POST request
         res.status(500).send(`Error: ${error.message}`);
     }
 });
 
-// Start the Express server and listen on port 3000 (accessible externally)
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Frontend running on port ${PORT}`);
+// Serve an HTML file (index.html) when accessing the root route ("/")
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// Listen on all network interfaces (0.0.0.0) to make it accessible externally
+app.listen(PORT, '0.0.0.0', () => console.log(`Frontend running on port ${PORT}`
