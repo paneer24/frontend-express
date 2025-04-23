@@ -25,4 +25,25 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// POST route
+// POST route to handle form submissions
+app.post('/submit', async (req, res) => {
+    try {
+        // Forward the request body to the Flask backend
+        const response = await axios.post('http://backend:5000/process', req.body);
+        
+        if (response.status === 200) {
+            // Redirect to success page if the backend process is successful
+            res.redirect('/success.html');
+        } else {
+            res.status(response.status).send('Error processing request');
+        }
+    } catch (error) {
+        // Handle errors during the POST request
+        res.status(500).send(`Error: ${error.message}`);
+    }
+});
+
+// Start the Express server and listen on port 3000 (accessible externally)
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Frontend running on port ${PORT}`);
+});
