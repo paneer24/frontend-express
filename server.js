@@ -35,4 +35,4 @@ app.get('/', (req, res) => {
 });
 
 // Listen on all network interfaces (0.0.0.0) to make it accessible externally
-app.listen(PORT, '0.0.0.0', () => console.log(`Frontend running on port ${PORT}`
+app.listen(PORT, '0.0.0.0', () => console.log(`Frontend running on port ${PORT}`));
